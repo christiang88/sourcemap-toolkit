@@ -70,6 +70,7 @@
     <Compile Include="MappingsListParserUnitTests.cs" />
     <Compile Include="SourceMapGeneratorUnitTests.cs" />
     <Compile Include="SourceMapParserUnitTests.cs" />
+    <Compile Include="SourceMapTransformerUnitTests.cs" />
     <Compile Include="SourceMapUnitTests.cs" />
     <Compile Include="SourcePositionUnitTests.cs" />
     <Compile Include="UnitTestUtils.cs" />
@@ -79,6 +80,16 @@
       <Project>{69FD1EB5-32F2-4759-9187-9A8E25927BCA}</Project>
       <Name>SourcemapToolkit.SourcemapParser</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="child1.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="child1.js.map">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

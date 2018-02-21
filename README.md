@@ -1,4 +1,4 @@
-# Source Map Toolkit [![Build status](https://ci.appveyor.com/api/projects/status/ht4u2w7paesucdjw?svg=true)](https://ci.appveyor.com/project/thomabr/sourcemap-toolkit)
+# Source Map Toolkit [![Build status](https://ci.appveyor.com/api/projects/status/ht4u2w7paesucdjw?svg=true)](https://ci.appveyor.com/project/thomabr/sourcemap-toolkit) [![NuGet](https://img.shields.io/nuget/v/SourceMapToolkit.svg)](https://www.nuget.org/packages/SourceMapToolkit/)
 This is a C# library for working with JavaScript source maps and deminifying JavaScript callstacks.
 
 ## Source Map Parsing
@@ -75,6 +75,42 @@ using (FileStream stream = new FileStream(@"sample.sourcemap", FileMode.Open))
 SourceMapGenerator generator = new SourceMapGenerator();
 string serializedMap = generator.SerializeMapping(sourceMap);
 File.WriteAllText(@"updatedSample.sourcemap", serializedMap);
+```
+
+### Chaining source maps
+A common use case when dealing with source maps is multiple mapping layers. You can use `ApplySourceMap` to chain maps together to link back to the source
+
+```csharp
+SourcePosition inOriginal = new SourcePosition { ZeroBasedLineNumber = 34, ZeroBasedColumnNumber = 23 };
+SourcePosition inBundled = new SourcePosition { ZeroBasedLineNumber = 23, ZeroBasedColumnNumber = 12 };
+SourcePosition inMinified = new SourcePosition { ZeroBasedLineNumber = 3, ZeroBasedColumnNumber = 2 };
+
+MappingEntry originalToBundledEntry = new MappingEntry {
+  GeneratedSourcePosition = inBundled,
+  OriginalSourcePosition = inOriginal,
+  OriginalFileName = "original.js"
+};
+
+MappingEntry bundledToMinifiedEntry = new MappingEntry {
+  GeneratedSourcePosition = inMinified,
+  OriginalSourcePosition = inBundled,
+  OriginalFileName = "bundle.js"
+};
+
+SourceMap bundledToOriginal = new SourceMap { 
+  File = "bundled.js",
+  Sources = new List<string> { "original.js" },
+  ParsedMappings = new List<MappingEntry> { originalToBundledEntry } 
+}
+
+SourceMap minifiedToBundled = new SourceMap { 
+  File = "bundled.min.js",
+  Sources = new List<string> { "bundled.js" },
+  ParsedMappings = new List<MappingEntry> { bundledToMinifiedEntry }
+}
+
+// will contain mapping for line 3, column 2 in the minified file to line 34, column 23 in the original file
+SourceMap minifiedToOriginal = minifiedToBundled.ApplySourceMap(bundledToOriginal);
 ```
 
 ## Call Stack Deminification
